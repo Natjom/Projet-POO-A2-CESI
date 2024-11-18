@@ -1,25 +1,10 @@
 #include "cell.h"
 
+Cell::Cell() : isAlive(false), x(0), y(0) {}
 
-//Constructeur par defaut
-Cell::Cell() 
-{
-    isAlive = false;
-    x = -1;
-    y = -1;
-};
-    
+// Constructeur paramétré
+Cell::Cell(bool state, int x, int y) : isAlive(state), x(x), y(y) {}
 
-//Constructeur par parametres
-Cell::Cell(bool isAlive, int x, int y)
-{
-    this->isAlive = isAlive;
-    this->x = x;
-    this->y = y;
-};
-
-//Methodes
-bool Cell::getState() 
-{
-    return isAlive;
-};
+// Accesseurs
+bool Cell::getState() { return isAlive; }
+void Cell::setState(bool state) { isAlive = state; }

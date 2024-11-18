@@ -5,6 +5,7 @@
 #include <vector>
 #include <ctime>
 #include <cstdlib>
+#include "cell.h"
 
 using namespace std;
 
@@ -14,7 +15,7 @@ private:
     int cellSize;
     int gridWidth;
     int gridHeight;
-    vector<vector<int>> grid;
+    vector<vector<Cell>> grid;
     sf::RenderWindow window;
 public:
     //Constructeurs
@@ -25,7 +26,7 @@ public:
     //Methodes
 
     void initializeGrid();
-    void renderGrid(sf::RenderWindow &window);
+    void renderGrid();
     void start();
 };
 

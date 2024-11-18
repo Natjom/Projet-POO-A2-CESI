@@ -7,16 +7,22 @@ private:
     bool isAlive;
     int x;
     int y;
+
 public:
-    //Constructeurs
+    // Constructeurs
     Cell();
     Cell(bool isAlive, int x, int y);
-    
-    //Destructeur
+
+    // Destructeur
     ~Cell() {};
 
-    //Methdodes
+    int getX() const { return x; }
+    int getY() const { return y; }
+
+
+    // Methdodes
     bool getState();
+    void setState(bool state);
 };
 
 #endif // CELL_H
