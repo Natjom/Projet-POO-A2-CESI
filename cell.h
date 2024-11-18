@@ -5,6 +5,7 @@ class Cell
 {
 private:
     bool isAlive;
+    bool nextState;
     int x;
     int y;
 
@@ -23,6 +24,7 @@ public:
     // Methdodes
     bool getState();
     void setState(bool state);
+    void update();
 };
 
 #endif // CELL_H

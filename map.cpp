@@ -43,8 +43,23 @@ void Map::renderGrid()
                 cell.setPosition(x * cellSize, y * cellSize);
                 window.draw(cell);
             }
-            grid[x][y].setState(rand() % 2 == 0);
-            // grid[x][y].setState(!grid[x][y].getState());
+            int neighborCount = getCellNeighbor(x, y);
+
+            if (grid[x][y].getState())
+            {
+
+                if (neighborCount != 2 && neighborCount != 3)
+                {
+                    grid[x][y].setState(false);
+                }
+            }
+            else
+            {
+                if (neighborCount == 3)
+                {
+                    grid[x][y].setState(true);
+                }
+            }
         }
     }
     window.display();
@@ -65,4 +80,32 @@ void Map::start()
 
         sf::sleep(sf::milliseconds(100));
     }
+}
+
+int Map::getCellNeighbor(int x, int y)
+{
+    int count = 0;
+
+    for (int dx = -1; dx <= 1; ++dx)
+    {
+        for (int dy = -1; dy <= 1; ++dy)
+        {
+            if (dx == 0 && dy == 0)
+            {
+                continue;
+            }
+            int nx = x + dx;
+            int ny = y + dy;
+
+            if (nx >= 0 && nx < gridWidth && ny >= 0 && ny < gridHeight)
+            {
+                if (grid[nx][ny].getState())
+                {
+                    ++count;
+                }
+            }
+        }
+    }
+
+    return count;
 }

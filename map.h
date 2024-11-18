@@ -28,6 +28,9 @@ public:
     void initializeGrid();
     void renderGrid();
     void start();
+
+
+    int getCellNeighbor(int x, int y);
 };
 
 #endif // MAP_H
