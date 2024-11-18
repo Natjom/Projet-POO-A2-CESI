@@ -43,7 +43,8 @@ void Map::renderGrid()
                 cell.setPosition(x * cellSize, y * cellSize);
                 window.draw(cell);
             }
-            grid[x][y].setState(!grid[x][y].getState());
+            grid[x][y].setState(rand() % 2 == 0);
+            // grid[x][y].setState(!grid[x][y].getState());
         }
     }
     window.display();
@@ -62,6 +63,6 @@ void Map::start()
 
         renderGrid();
 
-        sf::sleep(sf::milliseconds(1000));
+        sf::sleep(sf::milliseconds(100));
     }
 }

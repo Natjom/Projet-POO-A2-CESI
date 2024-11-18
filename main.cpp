@@ -9,7 +9,8 @@
 
 int main() {
     
-    Map map(10, 80, 80);
+    // Map map(10, 80, 80);
+    Map map(3, 400, 400);
 
     map.initializeGrid();
 
