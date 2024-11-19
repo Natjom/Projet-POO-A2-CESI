@@ -15,16 +15,18 @@ private:
     int cellSize;
     int gridWidth;
     int gridHeight;
+    int speed;
     vector<vector<Cell>> grid;
     sf::RenderWindow window;
 public:
     //Constructeurs
     Map();
-    Map(int cellSize, int gridWidth, int gridHeight);
+    Map(int cellSize, int gridWidth, int gridHeight, int speed);
 
 
     //Methodes
 
+    void rule(int x, int y);
     void initializeGrid();
     void renderGrid();
     void start();

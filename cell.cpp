@@ -1,8 +1,8 @@
 #include "cell.h"
 
-Cell::Cell() : isAlive(false), nextState(state), x(0), y(0) {}
+Cell::Cell() : isAlive(false), nextState(false), x(0), y(0) {}
 
-// Constructeur paramétré
+// Constructeur par parametres
 Cell::Cell(bool state, int x, int y) : isAlive(state), nextState(state), x(x), y(y) {}
 
 // Accesseurs
