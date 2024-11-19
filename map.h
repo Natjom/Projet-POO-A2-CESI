@@ -20,7 +20,7 @@ private:
     sf::RenderWindow window;
 public:
     //Constructeurs
-    Map();
+    Map(int cellSize, int speed);
     Map(int cellSize, int gridWidth, int gridHeight, int speed);
 
 
