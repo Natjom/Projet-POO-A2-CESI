@@ -8,13 +8,9 @@
 
 
 int main() {
-    
     // Map map(10, 100);
     Map map(100, 1000);
-
     map.initializeGrid();
-
     map.start();
-
     return 0;
 }

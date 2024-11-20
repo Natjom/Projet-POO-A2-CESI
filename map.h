@@ -19,19 +19,12 @@ private:
     vector<vector<Cell>> grid;
     sf::RenderWindow window;
 public:
-    //Constructeurs
     Map(int cellSize, int speed);
     Map(int cellSize, int gridWidth, int gridHeight, int speed);
-
-
-    //Methodes
-
     void rule(int x, int y);
     void initializeGrid();
     void renderGrid();
     void start();
-
-
     int getCellNeighbor(int x, int y);
 };
 
