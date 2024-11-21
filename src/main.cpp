@@ -9,7 +9,7 @@
 
 int main() {
     // Map map(10, 100);
-    Map map(100, 1000);
+    Map map(5, 10);
     map.initializeGrid();
     map.start();
     return 0;

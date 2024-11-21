@@ -20,11 +20,12 @@ private:
     sf::RenderWindow window;
 public:
     Map(int cellSize, int speed);
-    Map(int cellSize, int gridWidth, int gridHeight, int speed);
     void rule(int x, int y);
     void initializeGrid();
     void renderGrid();
     void start();
+    void handleMouseClick(sf::Vector2i mousePosition);
+    void renderSidebar();
     int getCellNeighbor(int x, int y);
 };
 
