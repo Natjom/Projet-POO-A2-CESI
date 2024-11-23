@@ -8,14 +8,17 @@ Map::Map(int cellSize, int speed)
     : cellSize(cellSize), speed(speed)
 {
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-    int screenWidth = desktop.width - 10;       
-    int screenHeight = desktop.height - 200; 
+    int screenWidth = desktop.width - 10;
+    int screenHeight = desktop.height - 200;
+    
     gridWidth = screenWidth / cellSize;
     gridHeight = screenHeight / cellSize;
     grid = vector<vector<Cell>>(gridWidth, vector<Cell>(gridHeight));
     window.create(sf::VideoMode(screenWidth, screenHeight + 100), "Game of Life");
-    window.setPosition(sf::Vector2i(0, 0));
+    window.setPosition(sf::Vector2i(0, 0)); 
 }
+
+
 
 void Map::initializeGrid()
 {
