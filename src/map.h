@@ -18,8 +18,10 @@ private:
     int speed;
     vector<vector<Cell>> grid;
     sf::RenderWindow window;
+    bool pause;
+    bool devInfo;
 public:
-    Map(int cellSize, int speed);
+    Map(int cellSize);
     void rule(int x, int y);
     void initializeGrid();
     void renderGrid();
@@ -27,6 +29,8 @@ public:
     void handleMouseClick(sf::Vector2i mousePosition);
     void renderSidebar();
     int getCellNeighbor(int x, int y);
+    void updateSection(int startX, int endX, int startY, int endY);
+    void renderDevInfo();
 };
 
 #endif // MAP_H

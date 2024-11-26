@@ -2,14 +2,22 @@
 #include "cell.h"
 #include <iostream>
 
+#include <thread>
+#include <atomic>
+#include <chrono>
+#include <vector>
+
 using namespace std;
 
-Map::Map(int cellSize, int speed)
-    : cellSize(cellSize), speed(speed)
+Map::Map(int cellSize)
+    : cellSize(cellSize)
 {
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     int screenWidth = desktop.width - 10;
     int screenHeight = desktop.height - 200;
+    speed = 100;
+    pause = false;
+    devInfo = true;
     
     gridWidth = screenWidth / cellSize;
     gridHeight = screenHeight / cellSize;
@@ -47,18 +55,39 @@ void Map::handleMouseClick(sf::Vector2i mousePosition)
     float buttonHeight = 40;
     float margin = 20;
     float startX = 10;
-    float startY = gridHeight * cellSize + 30; 
-
-    for (int i = 0; i < 3; ++i)
+    float startY = gridHeight * cellSize + 30;
+    if (mousePosition.x >= startX && mousePosition.x <= startX + buttonWidth &&
+        mousePosition.y >= startY && mousePosition.y <= startY + buttonHeight)
     {
-        float buttonX = startX + i * (buttonWidth + margin);
-        float buttonY = startY;
-
-        if (mousePosition.x >= buttonX && mousePosition.x <= buttonX + buttonWidth &&
-            mousePosition.y >= buttonY && mousePosition.y <= buttonY + buttonHeight)
-        {
-            cout << "Button " << i + 1 << " clicked!" << endl;
-        }
+        pause = !pause;
+        sf::sleep(sf::milliseconds(100));  // Petite pause pour éviter un trop grand nombre de clics rapides
+        cout << "Bouton Pause/Play cliqué !" << endl;
+    }
+    if (mousePosition.x >= startX + (buttonWidth + margin) && mousePosition.x <= startX + (buttonWidth + margin) + buttonWidth &&
+        mousePosition.y >= startY && mousePosition.y <= startY + buttonHeight)
+    {
+        initializeGrid();
+        cout << "Bouton Réinitialiser cliqué !" << endl;
+    }
+    if (mousePosition.x >= startX + 2 * (buttonWidth + margin) && mousePosition.x <= startX + 2 * (buttonWidth + margin) + buttonWidth &&
+        mousePosition.y >= startY && mousePosition.y <= startY + buttonHeight)
+    {
+        window.close();
+        cout << "Bouton Quitter cliqué !" << endl;
+    }
+    if (mousePosition.x >= startX + 3 * (buttonWidth + margin) && mousePosition.x <= startX + 3 * (buttonWidth + margin) + buttonWidth &&
+        mousePosition.y >= startY && mousePosition.y <= startY + buttonHeight)
+    {
+        speed = std::min(speed * 10, 2000);  // Limiter la vitesse à 10ms minimum
+        sf::sleep(sf::milliseconds(100));
+        cout << "Vitesse +, nouvelle vitesse: " << speed << "ms" << endl;
+    }
+    if (mousePosition.x >= startX + 4 * (buttonWidth + margin) && mousePosition.x <= startX + 4 * (buttonWidth + margin) + buttonWidth &&
+        mousePosition.y >= startY && mousePosition.y <= startY + buttonHeight)
+    {
+        speed = std::max(speed / 10, 1);  // Augmenter la vitesse
+        sf::sleep(sf::milliseconds(100));
+        cout << "Vitesse -, nouvelle vitesse: " << speed << "ms" << endl;
     }
 }
 
@@ -66,32 +95,82 @@ void Map::renderSidebar()
 {
     float sidebarHeight = 100.0f;
     float sidebarWidth = gridWidth * cellSize;
+
     sf::RectangleShape sidebar(sf::Vector2f(sidebarWidth, sidebarHeight));
-    sidebar.setFillColor(sf::Color(50, 50, 50));   
-    sidebar.setPosition(0, gridHeight * cellSize); 
+    sidebar.setFillColor(sf::Color(50, 50, 50));
+    sidebar.setPosition(0, gridHeight * cellSize);
     window.draw(sidebar);
+
     float buttonWidth = 120;
     float buttonHeight = 40;
-    float margin = 20;                                                         
-    float startX = 10;                                                         
-    float startY = gridHeight * cellSize + (sidebarHeight - buttonHeight) / 2; 
-    for (int i = 0; i < 3; ++i) 
+    float margin = 20;
+    float startX = 10;
+    float startY = gridHeight * cellSize + 30;
+
+    sf::RectangleShape button1(sf::Vector2f(buttonWidth, buttonHeight));
+    button1.setFillColor(sf::Color(100, 100, 100));
+    button1.setPosition(startX, startY);
+    window.draw(button1);
+
+    sf::Font font;
+    if (font.loadFromFile("../fonts/arial.ttf"))
     {
-        sf::RectangleShape button(sf::Vector2f(buttonWidth, buttonHeight));
-        button.setFillColor(sf::Color(100, 100, 100)); 
-        button.setPosition(startX + i * (buttonWidth + margin), startY);
-        window.draw(button);
-        sf::Font font;
-        if (font.loadFromFile("../fonts/arial.ttf"))
-        {
-            sf::Text buttonText;
-            buttonText.setFont(font);
-            buttonText.setString("Button " + std::to_string(i + 1));
-            buttonText.setCharacterSize(16);
-            buttonText.setFillColor(sf::Color::White);
-            buttonText.setPosition(startX + i * (buttonWidth + margin) + 10, startY + 10);
-            window.draw(buttonText);
-        }
+        sf::Text buttonText1("Pause/Play", font, 16);
+        buttonText1.setFillColor(sf::Color::White);
+        buttonText1.setPosition(startX + 10, startY + 10);
+        window.draw(buttonText1);
+    }
+
+    sf::RectangleShape button2(sf::Vector2f(buttonWidth, buttonHeight));
+    button2.setFillColor(sf::Color(100, 100, 100));
+    button2.setPosition(startX + (buttonWidth + margin), startY);
+    window.draw(button2);
+
+    if (font.loadFromFile("../fonts/arial.ttf"))
+    {
+        sf::Text buttonText2("Reset Grid", font, 16);
+        buttonText2.setFillColor(sf::Color::White);
+        buttonText2.setPosition(startX + (buttonWidth + margin) + 10, startY + 10);
+        window.draw(buttonText2);
+    }
+
+    sf::RectangleShape button3(sf::Vector2f(buttonWidth, buttonHeight));
+    button3.setFillColor(sf::Color(100, 100, 100));
+    button3.setPosition(startX + 2 * (buttonWidth + margin), startY);
+    window.draw(button3);
+
+    if (font.loadFromFile("../fonts/arial.ttf"))
+    {
+        sf::Text buttonText3("Quit", font, 16);
+        buttonText3.setFillColor(sf::Color::White);
+        buttonText3.setPosition(startX + 2 * (buttonWidth + margin) + 10, startY + 10);
+        window.draw(buttonText3);
+    }
+
+    sf::RectangleShape button4(sf::Vector2f(buttonWidth, buttonHeight));
+    button4.setFillColor(sf::Color(100, 100, 100));
+    button4.setPosition(startX + 3 * (buttonWidth + margin), startY);
+    window.draw(button4);
+
+    if (font.loadFromFile("../fonts/arial.ttf"))
+    {
+        sf::Text buttonText4("Speed+", font, 16);
+        buttonText4.setFillColor(sf::Color::White);
+        buttonText4.setPosition(startX + 3 * (buttonWidth + margin) + 10, startY + 10);
+        window.draw(buttonText4);
+    }
+
+    sf::RectangleShape button5(sf::Vector2f(buttonWidth, buttonHeight));
+    button5.setFillColor(sf::Color(100, 100, 100));
+    button5.setPosition(startX + 4 * (buttonWidth + margin), startY);
+    window.draw(button5);
+
+    if (font.loadFromFile("../fonts/arial.ttf"))
+    {
+        sf::Text buttonText5("Speed-", font, 16);
+        buttonText5.setFillColor(sf::Color::White);
+        buttonText5.setPosition(startX + 4 * (buttonWidth + margin) + 10, startY + 10);
+        window.draw(buttonText5);
     }
 }
 
@@ -124,64 +203,74 @@ void Map::rule(int x, int y)
 
 void Map::renderGrid()
 {
-    for (int x = 0; x < gridWidth; ++x)
-    {
-        for (int y = 0; y < gridHeight; ++y)
-        {
-            rule(x, y);
-        }
+    int numThreads = std::thread::hardware_concurrency();
+    std::vector<std::thread> threads;
+
+    int sectionWidth = gridWidth / numThreads;
+
+    for (int i = 0; i < numThreads; ++i) {
+        int startX = i * sectionWidth;
+        int endX = (i == numThreads - 1) ? gridWidth : (i + 1) * sectionWidth;
+        threads.emplace_back(&Map::updateSection, this, startX, endX, 0, gridHeight);
     }
-    for (int x = 0; x < gridWidth; ++x)
-    {
-        for (int y = 0; y < gridHeight; ++y)
-        {
+    for (auto& thread : threads) {
+        thread.join();
+    }
+    for (int x = 0; x < gridWidth; ++x) {
+        for (int y = 0; y < gridHeight; ++y) {
             grid[x][y].update();
         }
     }
-    window.clear();
-    sf::RectangleShape cell(sf::Vector2f(cellSize - 1.0f, cellSize - 1.0f));
-    for (int x = 0; x < gridWidth; ++x)
-    {
-        for (int y = 0; y < gridHeight; ++y)
-        {
-            if (grid[x][y].getState())
-            {
-                cell.setFillColor(sf::Color::White);
-            }
-            else
-            {
-                cell.setFillColor(sf::Color::Black);
-            }
-            cell.setPosition(x * cellSize, y * cellSize);
-            window.draw(cell);
-        }
-    }
-    renderSidebar();
-    window.display();
 }
 
-void Map::start()
-{
-    while (window.isOpen())
-    {
+
+std::atomic<bool> isRunning(true);
+
+void Map::start() {
+    sf::Clock clock;
+    sf::Time elapsed;
+    std::thread updateThread([this]() {
+        while (isRunning) {
+            if (!pause) {
+                renderGrid();
+                std::this_thread::sleep_for(std::chrono::milliseconds(speed));
+            }
+        }
+    });
+    while (window.isOpen()) {
         sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                isRunning = false;
+                updateThread.join();
                 window.close();
+            }
+
+            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+                sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+                handleMouseClick(mousePosition);
+            }
         }
-
-        renderGrid();
-
-        if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
-        {
-            sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-            handleMouseClick(mousePosition);
+        window.clear();
+        for (int x = 0; x < gridWidth; ++x) {
+            for (int y = 0; y < gridHeight; ++y) {
+                sf::RectangleShape cell(sf::Vector2f(cellSize - 1.0f, cellSize - 1.0f));
+                if (grid[x][y].getState()) {
+                    cell.setFillColor(sf::Color::White);
+                } else {
+                    cell.setFillColor(sf::Color::Black);
+                }
+                cell.setPosition(x * cellSize, y * cellSize);
+                window.draw(cell);
+            }
         }
-
-        sf::sleep(sf::milliseconds(speed));
+        renderSidebar();
+        renderDevInfo();
+        window.display();
     }
 }
+
+
 
 int Map::getCellNeighbor(int x, int y)
 {
@@ -206,4 +295,30 @@ int Map::getCellNeighbor(int x, int y)
     }
 
     return count;
+}
+
+void Map::renderDevInfo()
+{
+    if (!devInfo)
+        return; // Ne rien afficher si le mode dev est désactivé
+
+    sf::Font font;
+    if (!font.loadFromFile("../fonts/arial.ttf"))
+        return;
+
+    sf::Text devText;
+    devText.setFont(font);
+    devText.setString("Dev Info:\nSpeed: " + std::to_string(speed) + " ms");
+    devText.setCharacterSize(16);
+    devText.setFillColor(sf::Color::Green);
+    devText.setPosition(10, 10); // Affiché en haut à gauche
+    window.draw(devText);
+}
+
+void Map::updateSection(int startX, int endX, int startY, int endY) {
+    for (int x = startX; x < endX; ++x) {
+        for (int y = startY; y < endY; ++y) {
+            rule(x, y);
+        }
+    }
 }
