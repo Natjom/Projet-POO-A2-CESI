@@ -9,10 +9,9 @@ Le projet consiste à implémenter une version fonctionnelle du **Jeu de la Vie*
 
 1. [Description](#description)  
 2. [Installation](#installation)  
-3. [Structure du Projet](#structure-du-projet)  
-4. [Usage](#usage)  
-5. [Contribution](#contribution)  
-6. [Licence](#licence)
+3. [Usage](#usage)  
+4. [Contribution](#contribution)  
+5. [Licence](#licence)
 
 ---
 
@@ -32,9 +31,9 @@ Pour installer et exécuter ce projet, suivez ces étapes :
    git clone https://github.com/Natjom/Projet-POO-A2-CESI.git
    ```
 
-2. Accédez au répertoire du projet :
+2. Accédez au répertoire source du projet :
    ```bash
-   cd Projet-POO-A2-CESI
+   cd Projet-POO-A2-CESI/src
    ```
 
 3. Compilez le projet à l'aide du Makefile :
@@ -46,32 +45,6 @@ Pour installer et exécuter ce projet, suivez ces étapes :
    ```bash
    ./main
    ```
-
----
-
-## Structure du Projet
-
-Voici la structure des fichiers du projet :
-
-```
-Projet-POO-A2-CESI
-├── .vscode/          # Configuration de l'environnement VS Code
-├── Makefile          # Script de compilation
-├── cell.cpp          # Implémentation des comportements des cellules
-├── cell.h            # Définition de la classe Cell
-├── main.cpp          # Point d'entrée du programme
-├── map.cpp           # Implémentation de la gestion de la grille
-├── map.h             # Définition de la classe Map
-```
-
-**Versions des fichiers :**
-- `.vscode` : v1.1811.2 (il y a 2 jours)  
-- `Makefile` : Initialisation (il y a 2 jours)  
-- `cell.cpp` : v1.2011.1b (il y a 1 minute)  
-- `cell.h` : v1.2011.1b (il y a 1 minute)  
-- `main.cpp` : v1.2011.1b (il y a 1 minute)  
-- `map.cpp` : v1.2011.1b (il y a 1 minute)  
-- `map.h` : v1.2011.1b (il y a 1 minute)  
 
 ---
 
