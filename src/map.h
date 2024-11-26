@@ -21,7 +21,7 @@ private:
     bool pause;
     bool devInfo;
 public:
-    Map(int cellSize);
+    Map();
     void rule(int x, int y);
     void initializeGrid();
     void renderGrid();

@@ -9,8 +9,7 @@
 
 using namespace std;
 
-Map::Map(int cellSize)
-    : cellSize(cellSize)
+Map::Map()
 {
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     int screenWidth = desktop.width - 10;
@@ -18,32 +17,30 @@ Map::Map(int cellSize)
     speed = 100;
     pause = false;
     devInfo = true;
-    
-    gridWidth = screenWidth / cellSize;
-    gridHeight = screenHeight / cellSize;
+
+    int tempCellSize = 4;
+
+    gridWidth = screenWidth / tempCellSize;
+    gridHeight = screenHeight / tempCellSize;
+    cellSize = std::min(screenWidth / gridWidth, screenHeight / gridHeight);
+
     grid = vector<vector<Cell>>(gridWidth, vector<Cell>(gridHeight));
+
     window.create(sf::VideoMode(screenWidth, screenHeight + 100), "Game of Life");
-    window.setPosition(sf::Vector2i(0, 0)); 
+    window.setPosition(sf::Vector2i(0, 0));
+
+    initializeGrid();
 }
-
-
 
 void Map::initializeGrid()
 {
     srand(time(0));
-    int centerX = gridWidth / 2;
-    int centerY = gridHeight / 2;
-    int halfSize = gridWidth / 6;
     for (int x = 0; x < gridWidth; ++x)
     {
         for (int y = 0; y < gridHeight; ++y)
         {
             bool isAlive = false;
-            if (x >= centerX - halfSize && x < centerX + halfSize &&
-                y >= centerY - halfSize && y < centerY + halfSize)
-            {
-                isAlive = (rand() % 3 != 2);
-            }
+            isAlive = (rand() % 4 != 1);
             grid[x][y] = Cell(isAlive, x, y);
         }
     }
@@ -60,7 +57,7 @@ void Map::handleMouseClick(sf::Vector2i mousePosition)
         mousePosition.y >= startY && mousePosition.y <= startY + buttonHeight)
     {
         pause = !pause;
-        sf::sleep(sf::milliseconds(100));  // Petite pause pour éviter un trop grand nombre de clics rapides
+        sf::sleep(sf::milliseconds(100));
         cout << "Bouton Pause/Play cliqué !" << endl;
     }
     if (mousePosition.x >= startX + (buttonWidth + margin) && mousePosition.x <= startX + (buttonWidth + margin) + buttonWidth &&
@@ -78,14 +75,14 @@ void Map::handleMouseClick(sf::Vector2i mousePosition)
     if (mousePosition.x >= startX + 3 * (buttonWidth + margin) && mousePosition.x <= startX + 3 * (buttonWidth + margin) + buttonWidth &&
         mousePosition.y >= startY && mousePosition.y <= startY + buttonHeight)
     {
-        speed = std::min(speed * 10, 2000);  // Limiter la vitesse à 10ms minimum
+        speed = std::min(speed * 10, 2000); // Limiter la vitesse à 10ms minimum
         sf::sleep(sf::milliseconds(100));
         cout << "Vitesse +, nouvelle vitesse: " << speed << "ms" << endl;
     }
     if (mousePosition.x >= startX + 4 * (buttonWidth + margin) && mousePosition.x <= startX + 4 * (buttonWidth + margin) + buttonWidth &&
         mousePosition.y >= startY && mousePosition.y <= startY + buttonHeight)
     {
-        speed = std::max(speed / 10, 1);  // Augmenter la vitesse
+        speed = std::max(speed / 10, 1); // Augmenter la vitesse
         sf::sleep(sf::milliseconds(100));
         cout << "Vitesse -, nouvelle vitesse: " << speed << "ms" << endl;
     }
@@ -154,7 +151,7 @@ void Map::renderSidebar()
 
     if (font.loadFromFile("../fonts/arial.ttf"))
     {
-        sf::Text buttonText4("Speed+", font, 16);
+        sf::Text buttonText4("Speed-", font, 16);
         buttonText4.setFillColor(sf::Color::White);
         buttonText4.setPosition(startX + 3 * (buttonWidth + margin) + 10, startY + 10);
         window.draw(buttonText4);
@@ -167,7 +164,7 @@ void Map::renderSidebar()
 
     if (font.loadFromFile("../fonts/arial.ttf"))
     {
-        sf::Text buttonText5("Speed-", font, 16);
+        sf::Text buttonText5("Speed+", font, 16);
         buttonText5.setFillColor(sf::Color::White);
         buttonText5.setPosition(startX + 4 * (buttonWidth + margin) + 10, startY + 10);
         window.draw(buttonText5);
@@ -208,56 +205,69 @@ void Map::renderGrid()
 
     int sectionWidth = gridWidth / numThreads;
 
-    for (int i = 0; i < numThreads; ++i) {
+    for (int i = 0; i < numThreads; ++i)
+    {
         int startX = i * sectionWidth;
         int endX = (i == numThreads - 1) ? gridWidth : (i + 1) * sectionWidth;
         threads.emplace_back(&Map::updateSection, this, startX, endX, 0, gridHeight);
     }
-    for (auto& thread : threads) {
+    for (auto &thread : threads)
+    {
         thread.join();
     }
-    for (int x = 0; x < gridWidth; ++x) {
-        for (int y = 0; y < gridHeight; ++y) {
+    for (int x = 0; x < gridWidth; ++x)
+    {
+        for (int y = 0; y < gridHeight; ++y)
+        {
             grid[x][y].update();
         }
     }
 }
 
-
 std::atomic<bool> isRunning(true);
 
-void Map::start() {
+void Map::start()
+{
     sf::Clock clock;
     sf::Time elapsed;
-    std::thread updateThread([this]() {
+    std::thread updateThread([this]()
+                             {
         while (isRunning) {
             if (!pause) {
                 renderGrid();
                 std::this_thread::sleep_for(std::chrono::milliseconds(speed));
             }
-        }
-    });
-    while (window.isOpen()) {
+        } });
+    while (window.isOpen())
+    {
         sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+            {
                 isRunning = false;
                 updateThread.join();
                 window.close();
             }
 
-            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
+            {
                 sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
                 handleMouseClick(mousePosition);
             }
         }
         window.clear();
-        for (int x = 0; x < gridWidth; ++x) {
-            for (int y = 0; y < gridHeight; ++y) {
+        for (int x = 0; x < gridWidth; ++x)
+        {
+            for (int y = 0; y < gridHeight; ++y)
+            {
                 sf::RectangleShape cell(sf::Vector2f(cellSize - 1.0f, cellSize - 1.0f));
-                if (grid[x][y].getState()) {
+                if (grid[x][y].getState())
+                {
                     cell.setFillColor(sf::Color::White);
-                } else {
+                }
+                else
+                {
                     cell.setFillColor(sf::Color::Black);
                 }
                 cell.setPosition(x * cellSize, y * cellSize);
@@ -269,8 +279,6 @@ void Map::start() {
         window.display();
     }
 }
-
-
 
 int Map::getCellNeighbor(int x, int y)
 {
@@ -315,9 +323,12 @@ void Map::renderDevInfo()
     window.draw(devText);
 }
 
-void Map::updateSection(int startX, int endX, int startY, int endY) {
-    for (int x = startX; x < endX; ++x) {
-        for (int y = startY; y < endY; ++y) {
+void Map::updateSection(int startX, int endX, int startY, int endY)
+{
+    for (int x = startX; x < endX; ++x)
+    {
+        for (int y = startY; y < endY; ++y)
+        {
             rule(x, y);
         }
     }
