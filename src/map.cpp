@@ -52,16 +52,13 @@ void Map::initializeGrid()
 
 void Map::handleMouseClick(sf::Vector2i mousePosition)
 {
-
     if (mousePosition.y < gridHeight * cellSize)
     {
         int cellX = mousePosition.x / cellSize;
         int cellY = mousePosition.y / cellSize;
-
-        // Vérifier que la cellule cliquée est bien dans les limites de la grille
         if (cellX >= 0 && cellX < gridWidth && cellY >= 0 && cellY < gridHeight)
         {
-            grid[cellX][cellY].setState(!grid[cellX][cellY].getState());  // Inverser l'état de la cellule
+            grid[cellX][cellY].setState(!grid[cellX][cellY].getState(), true); 
             cout << "Cellule (" << cellX << ", " << cellY << ") inversée." << endl;
         }
     }
@@ -220,22 +217,22 @@ void Map::rule(int x, int y)
     {
         if (neighborCount != 2 && neighborCount != 3)
         {
-            grid[x][y].setState(false);
+            grid[x][y].setState(false, false);
         }
         else
         {
-            grid[x][y].setState(true);
+            grid[x][y].setState(true, false);
         }
     }
     else
     {
         if (neighborCount == 3)
         {
-            grid[x][y].setState(true);
+            grid[x][y].setState(true, false);
         }
         else
         {
-            grid[x][y].setState(false);
+            grid[x][y].setState(false, false);
         }
     }
 }

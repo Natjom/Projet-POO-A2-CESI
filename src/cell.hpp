@@ -16,7 +16,7 @@ public:
     int getX() const { return x; }
     int getY() const { return y; }
     bool getState();
-    void setState(bool state);
+    void setState(bool state, bool force);
     void update();
 };
 
