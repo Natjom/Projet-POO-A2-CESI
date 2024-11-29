@@ -30,7 +30,7 @@ Map::Map()
 
     grid = vector<vector<Cell>>(gridWidth, vector<Cell>(gridHeight));
 
-    window.create(sf::VideoMode(screenWidth, screenHeight + 100), "Game of Life");
+    window.create(sf::VideoMode(screenWidth, screenHeight + 100), "CESI GAMING");
     window.setPosition(sf::Vector2i(0, 0));
 
     initializeGrid();
