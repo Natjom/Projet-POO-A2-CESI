@@ -4,8 +4,8 @@
 #include <cstdlib>
 
 
-#include "map.h"
-#include "cell.h"
+#include "map.hpp"
+#include "cell.hpp"
 
 
 int main() {

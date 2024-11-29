@@ -5,7 +5,7 @@
 #include <vector>
 #include <ctime>
 #include <cstdlib>
-#include "cell.h"
+#include "cell.hpp"
 
 using namespace std;
 
@@ -31,6 +31,7 @@ public:
     int getCellNeighbor(int x, int y);
     void updateSection(int startX, int endX, int startY, int endY);
     void renderDevInfo();
+    void loadGridFromFile(const std::string &filename);
 };
 
 #endif // MAP_H

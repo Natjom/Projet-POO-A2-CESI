@@ -1,13 +1,17 @@
-#include "map.h"
-#include "cell.h"
+#include "map.hpp"
+#include "cell.hpp"
 #include <iostream>
 
 #include <thread>
 #include <atomic>
+#include <sstream>
+#include <fstream>
 #include <chrono>
 #include <vector>
 
 using namespace std;
+
+std::atomic<bool> isRunning(true);
 
 Map::Map()
 {
@@ -18,7 +22,7 @@ Map::Map()
     pause = false;
     devInfo = true;
 
-    int tempCellSize = 4;
+    int tempCellSize = 8; // 4 = best
 
     gridWidth = screenWidth / tempCellSize;
     gridHeight = screenHeight / tempCellSize;
@@ -40,7 +44,7 @@ void Map::initializeGrid()
         for (int y = 0; y < gridHeight; ++y)
         {
             bool isAlive = false;
-            isAlive = (rand() % 4 != 1);
+            isAlive = (rand() % 2 != 1);
             grid[x][y] = Cell(isAlive, x, y);
         }
     }
@@ -48,11 +52,25 @@ void Map::initializeGrid()
 
 void Map::handleMouseClick(sf::Vector2i mousePosition)
 {
+
+    if (mousePosition.y < gridHeight * cellSize)
+    {
+        int cellX = mousePosition.x / cellSize;
+        int cellY = mousePosition.y / cellSize;
+
+        if (cellX >= 0 && cellX < gridWidth && cellY >= 0 && cellY < gridHeight)
+        {
+            grid[cellX][cellY].setState(!grid[cellX][cellY].getState());
+            cout << "Cellule (" << cellX << ", " << cellY << ") inversée." << endl;
+        }
+    }
+
     float buttonWidth = 120;
     float buttonHeight = 40;
     float margin = 20;
     float startX = 10;
     float startY = gridHeight * cellSize + 30;
+
     if (mousePosition.x >= startX && mousePosition.x <= startX + buttonWidth &&
         mousePosition.y >= startY && mousePosition.y <= startY + buttonHeight)
     {
@@ -75,16 +93,26 @@ void Map::handleMouseClick(sf::Vector2i mousePosition)
     if (mousePosition.x >= startX + 3 * (buttonWidth + margin) && mousePosition.x <= startX + 3 * (buttonWidth + margin) + buttonWidth &&
         mousePosition.y >= startY && mousePosition.y <= startY + buttonHeight)
     {
-        speed = std::min(speed * 10, 2000); // Limiter la vitesse à 10ms minimum
+        speed = std::min(speed * 10, 2000);
         sf::sleep(sf::milliseconds(100));
         cout << "Vitesse +, nouvelle vitesse: " << speed << "ms" << endl;
     }
     if (mousePosition.x >= startX + 4 * (buttonWidth + margin) && mousePosition.x <= startX + 4 * (buttonWidth + margin) + buttonWidth &&
         mousePosition.y >= startY && mousePosition.y <= startY + buttonHeight)
     {
-        speed = std::max(speed / 10, 1); // Augmenter la vitesse
+        speed = std::max(speed / 10, 1);
         sf::sleep(sf::milliseconds(100));
         cout << "Vitesse -, nouvelle vitesse: " << speed << "ms" << endl;
+    }
+
+    if (mousePosition.x >= startX + 5 * (buttonWidth + margin) && mousePosition.x <= startX + 5 * (buttonWidth + margin) + buttonWidth &&
+        mousePosition.y >= startY && mousePosition.y <= startY + buttonHeight)
+    {
+        std::string filename;
+        cout << "Entrez le chemin du fichier à charger : ";
+        cin >> filename; // Vous pouvez remplacer ceci par un dialogue graphique.
+        loadGridFromFile(filename);
+        cout << "Grille chargée depuis : " << filename << endl;
     }
 }
 
@@ -169,6 +197,19 @@ void Map::renderSidebar()
         buttonText5.setPosition(startX + 4 * (buttonWidth + margin) + 10, startY + 10);
         window.draw(buttonText5);
     }
+
+    sf::RectangleShape button6(sf::Vector2f(buttonWidth, buttonHeight));
+    button6.setFillColor(sf::Color(100, 100, 100));
+    button6.setPosition(startX + 5 * (buttonWidth + margin), startY);
+    window.draw(button6);
+
+    if (font.loadFromFile("../fonts/arial.ttf"))
+    {
+        sf::Text buttonText6("Load Grid", font, 16);
+        buttonText6.setFillColor(sf::Color::White);
+        buttonText6.setPosition(startX + 5 * (buttonWidth + margin) + 10, startY + 10);
+        window.draw(buttonText6);
+    }
 }
 
 void Map::rule(int x, int y)
@@ -223,8 +264,6 @@ void Map::renderGrid()
         }
     }
 }
-
-std::atomic<bool> isRunning(true);
 
 void Map::start()
 {
@@ -308,18 +347,16 @@ int Map::getCellNeighbor(int x, int y)
 void Map::renderDevInfo()
 {
     if (!devInfo)
-        return; // Ne rien afficher si le mode dev est désactivé
-
+        return;
     sf::Font font;
     if (!font.loadFromFile("../fonts/arial.ttf"))
         return;
-
     sf::Text devText;
     devText.setFont(font);
     devText.setString("Dev Info:\nSpeed: " + std::to_string(speed) + " ms");
     devText.setCharacterSize(16);
     devText.setFillColor(sf::Color::Green);
-    devText.setPosition(10, 10); // Affiché en haut à gauche
+    devText.setPosition(10, 10);
     window.draw(devText);
 }
 
@@ -332,4 +369,40 @@ void Map::updateSection(int startX, int endX, int startY, int endY)
             rule(x, y);
         }
     }
+}
+
+void Map::loadGridFromFile(const std::string &filename)
+{
+    std::string filepath = "../data/" + filename;
+    std::ifstream file(filepath);
+    if (!file.is_open())
+    {
+        std::cerr << "Erreur : impossible d'ouvrir le fichier " << filepath << std::endl;
+        return;
+    }
+    int motifRows, motifCols;
+    file >> motifRows >> motifCols;
+    for (int x = 0; x < gridWidth; ++x)
+    {
+        for (int y = 0; y < gridHeight; ++y)
+        {
+            grid[x][y] = Cell(false, x, y);
+        }
+    }
+    int startX = (gridWidth - motifCols) / 2;
+    int startY = (gridHeight - motifRows) / 2;
+    for (int y = 0; y < motifRows; ++y)
+    {
+        for (int x = 0; x < motifCols; ++x)
+        {
+            int state;
+            file >> state;
+            if (startX + x >= 0 && startX + x < gridWidth && startY + y >= 0 && startY + y < gridHeight)
+            {
+                grid[startX + x][startY + y] = Cell(state == 1, startX + x, startY + y);
+            }
+        }
+    }
+    file.close();
+    std::cout << "Fichier chargé depuis : " << filepath << " et placé au centre de la grille." << std::endl;
 }
