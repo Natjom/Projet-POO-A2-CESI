@@ -22,8 +22,8 @@ Map::Map()
     pause = false;
     devInfo = true;
 
-    int tempCellSize = 8; // 4 = best
-
+    int tempCellSize = 4; // 4
+ 
     gridWidth = screenWidth / tempCellSize;
     gridHeight = screenHeight / tempCellSize;
     cellSize = std::min(screenWidth / gridWidth, screenHeight / gridHeight);
@@ -58,9 +58,10 @@ void Map::handleMouseClick(sf::Vector2i mousePosition)
         int cellX = mousePosition.x / cellSize;
         int cellY = mousePosition.y / cellSize;
 
+        // Vérifier que la cellule cliquée est bien dans les limites de la grille
         if (cellX >= 0 && cellX < gridWidth && cellY >= 0 && cellY < gridHeight)
         {
-            grid[cellX][cellY].setState(!grid[cellX][cellY].getState());
+            grid[cellX][cellY].setState(!grid[cellX][cellY].getState());  // Inverser l'état de la cellule
             cout << "Cellule (" << cellX << ", " << cellY << ") inversée." << endl;
         }
     }
@@ -269,14 +270,16 @@ void Map::start()
 {
     sf::Clock clock;
     sf::Time elapsed;
-    std::thread updateThread([this]()
-                             {
+    std::thread updateThread([this](){
         while (isRunning) {
             if (!pause) {
-                renderGrid();
-                std::this_thread::sleep_for(std::chrono::milliseconds(speed));
+                renderGrid();  // Mise à jour de la grille
+                std::this_thread::sleep_for(std::chrono::milliseconds(speed));  // Pause entre les générations
             }
-        } });
+        }
+    });
+
+    // Boucle principale pour gérer les événements et redessiner la fenêtre
     while (window.isOpen())
     {
         sf::Event event;
@@ -292,32 +295,42 @@ void Map::start()
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
             {
                 sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-                handleMouseClick(mousePosition);
+                handleMouseClick(mousePosition);  // Appelle la gestion du clic de souris
             }
         }
-        window.clear();
+
+        window.clear();  // Efface la fenêtre pour la nouvelle image
+
+        // Affichage des cellules
         for (int x = 0; x < gridWidth; ++x)
         {
             for (int y = 0; y < gridHeight; ++y)
             {
                 sf::RectangleShape cell(sf::Vector2f(cellSize - 1.0f, cellSize - 1.0f));
+
+                // Définir la couleur de la cellule en fonction de son état
                 if (grid[x][y].getState())
                 {
-                    cell.setFillColor(sf::Color::White);
+                    cell.setFillColor(sf::Color::White);  // Cellule vivante
                 }
                 else
                 {
-                    cell.setFillColor(sf::Color::Black);
+                    cell.setFillColor(sf::Color::Black);  // Cellule morte
                 }
+
+                // Positionner la cellule sur la grille
                 cell.setPosition(x * cellSize, y * cellSize);
-                window.draw(cell);
+                window.draw(cell);  // Dessiner la cellule
             }
         }
-        renderSidebar();
-        renderDevInfo();
-        window.display();
+
+        renderSidebar();  // Afficher la barre latérale
+        renderDevInfo();  // Afficher les informations de développement
+        window.display();  // Afficher l'ensemble de la scène
     }
 }
+
+
 
 int Map::getCellNeighbor(int x, int y)
 {
