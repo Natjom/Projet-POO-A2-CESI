@@ -3,7 +3,7 @@
 
 int main()
 {
-    Graphic graphic;
-    graphic.start();
+    Game game;
+    game.Start();
     return 0;
 }

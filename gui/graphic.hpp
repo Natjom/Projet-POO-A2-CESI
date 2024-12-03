@@ -23,6 +23,8 @@ public:
     void start();
     void updateSection(int startX, int endX, int startY, int endY);
     void renderDevInfo();
+    void renderSidebar();
+    void handleMouseClick(sf::Vector2i mousePosition);
 };
 
 #endif // GRAPHIC_HPP
