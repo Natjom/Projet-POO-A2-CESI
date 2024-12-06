@@ -1,6 +1,8 @@
 #include "game.hpp"
 #include "../gui/graphic.hpp"
 
+#include <sys/stat.h>
+#include <sstream>
 #include <iostream>
 
 using namespace std;
@@ -31,15 +33,32 @@ void Game::Start()
         string inputFilename;
         cout << "Entrez le nom du fichier d'entrée (doit être dans 'data/'): ";
         cin >> inputFilename;
-        cout << inputFilename << endl;
 
         // Créer la grille et charger le fichier d'entrée
         Grid grid(10, 10); // Taille par défaut, sera écrasée par le contenu du fichier
         grid.loadGridFromFile(inputFilename, true);
 
-        string outputFilename = inputFilename + "_out"; // Nom de fichier d'export par défaut
-        cout << outputFilename << endl;
-        int iterations;
+        // Créer le répertoire de sortie sous "./exports/"
+        string outputDir = "exports/" + inputFilename + "_out";
+
+        // Créer le répertoire si il n'existe pas déjà
+        int dirCreateStatus = mkdir(outputDir.c_str(), 0777); // Créer le dossier avec les permissions 0777
+
+        // Vérifier si le répertoire a été créé avec succès
+        if (dirCreateStatus == -1)
+        {
+            if (errno == EEXIST)
+            {
+                cout << "Le dossier existe déjà : " << outputDir << endl;
+            }
+            else
+            {
+                perror("Erreur lors de la création du dossier");
+                return;
+            }
+        }
+
+        int iterations = 0;
         string command;
 
         while (true)
@@ -47,7 +66,7 @@ void Game::Start()
             // Affichage du menu principal
             cout << "\n--- Menu Console ---\n";
             cout << "1. Avancer de n itérations\n";
-            cout << "2. Exporter l'état de la grille (nom par défaut : " << outputFilename << ")\n";
+            cout << "2. Exporter l'état de la grille\n";
             cout << "3. Quitter\n";
             cout << "Commande: ";
             cin >> command;
@@ -55,14 +74,16 @@ void Game::Start()
             if (command == "1") // Avancer de n itérations
             {
                 cout << "Combien d'itérations voulez-vous avancer ? ";
-                cin >> iterations;
+                int tmp;
+                cin >> tmp;
 
                 // Vérifier que le nombre d'itérations est valide
-                if (iterations <= 0)
+                if (tmp <= 0)
                 {
                     cout << "Le nombre d'itérations doit être supérieur à 0.\n";
                     continue;
                 }
+                iterations += tmp;
 
                 // Avancer la grille de 'iterations' pas
                 for (int i = 0; i < iterations; ++i)
@@ -75,12 +96,26 @@ void Game::Start()
                         }
                     }
                     grid.update(); // Mettre à jour l'état de la grille
-                    cout << "Itération " << i + 1 << " terminée.\n";
+
+                    // Nom du fichier d'itération
+                    stringstream ss;
+                    ss << outputDir << "/iteration_" << (i + 1);
+                    string iterationFilename = ss.str();
+
+                    // Exporter l'état de la grille à chaque itération
+                    grid.Export(iterationFilename); // Exporter la grille avec le nom d'itération
+                    cout << "Itération " << i + 1 << " terminée. Fichier exporté sous : " << iterationFilename << endl;
                 }
             }
-            else if (command == "2") // Exporter l'état de la grille
+            else if (command == "2") // Exporter l'état de la grille après toutes les itérations
             {
-                grid.Export(outputFilename); // Exporter la grille
+                // Exporter la dernière itération avec un nom basé sur l'itération finale
+                stringstream ss;
+
+                ss << "./exports/" << inputFilename << "_out" << "/iteration_" << iterations;
+                string finalIterationFilename = ss.str();
+                grid.Export(finalIterationFilename); // Exporter la grille avec le nom d'itération final
+                cout << "État final exporté sous : " << finalIterationFilename << endl;
             }
             else if (command == "3") // Quitter
             {

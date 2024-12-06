@@ -2,6 +2,8 @@
 #include <sstream>
 #include <fstream>
 #include <limits>
+#include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -26,7 +28,7 @@ void Grid::initializeGrid()
         {
             bool isAlive = false;
             isAlive = (rand() % 2 != 1);
-            grid[x][y] = Cell(isAlive, x, y);
+            grid[x][y] = Cell(isAlive, false, x, y);
         }
     }
 }
@@ -96,84 +98,73 @@ void Grid::update()
 
 void Grid::loadGridFromFile(const std::string &filename, bool resizeGrid)
 {
-    std::ifstream file("data/" + filename);
+    std::string filepath = "./data/" + filename;
+    std::ifstream file(filepath);
+
     if (!file.is_open())
     {
-        std::cerr << "Erreur : impossible d'ouvrir le fichier " << filename << std::endl;
+        std::cout << "file not openable" << std::endl;
         return;
     }
 
-    int fileRows, fileCols;
-    file >> fileRows >> fileCols;
+    int motifRows, motifCols;
+    file >> motifRows >> motifCols;
+    file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-    // Si resizeGrid est vrai, redimensionner la grille aux dimensions du fichier
+    vector<vector<Cell>> newGrid(motifRows, vector<Cell>(motifCols));
+    std::string line;
+    int y = 0;
+    while (getline(file, line) && y < motifRows)
+    {
+        std::istringstream lineStream(line);
+        int state, x = 0;
+
+        while (lineStream >> state && x < motifCols)
+        {
+            newGrid[y][x] = Cell(state == 1, false, x, y);
+            ++x;
+        }
+        ++y;
+    }
+
     if (resizeGrid)
     {
-        // Créer une nouvelle grille temporaire de la taille des dimensions du fichier
-        vector<vector<Cell>> tempGrid(fileRows, vector<Cell>(fileCols));
 
-        // Lire chaque ligne du fichier et ajouter les données à la nouvelle grille
-        std::string line;
-        int currentRow = 0;
-        while (std::getline(file, line) && currentRow < fileRows)
-        {
-            std::stringstream lineStream(line);
-            int currentCol = 0;
-
-            // Lire les valeurs de la ligne et remplir la grille
-            while (lineStream)
-            {
-                int state;
-                lineStream >> state;
-
-                if (currentCol < fileCols)
-                {
-                    tempGrid[currentRow][currentCol] = Cell(state == 1, currentCol, currentRow); // Remplir les cases avec les données du fichier
-                    ++currentCol;
-                }
-            }
-
-            ++currentRow;
-        }
-
-        // Une fois que la nouvelle grille est remplie avec les données, la transférer dans la grille existante
-        // Tout le reste de la grille (les dimensions de gridWidth et gridHeight) sera rempli avec des cellules mortes (0).
-        gridWidth = fileCols;
-        gridHeight = fileRows;
-        grid = std::vector<std::vector<Cell>>(gridHeight, std::vector<Cell>(gridWidth)); // Recréer la grille
-
-        // Copier les données de tempGrid dans grid
-        for (int i = 0; i < fileRows; ++i)
-        {
-            for (int j = 0; j < fileCols; ++j)
-            {
-                grid[i][j] = tempGrid[i][j];
-            }
-        }
-
-        // Si la grille d'origine est plus grande, remplir les cases restantes avec des cellules mortes (0)
-        for (int i = fileRows; i < gridHeight; ++i)
-        {
-            for (int j = 0; j < gridWidth; ++j)
-            {
-                grid[i][j] = Cell(false, j, i); // Remplir avec des cellules mortes (0)
-            }
-        }
-
+        // Met à jour la grille
+        grid.swap(newGrid);
+        gridWidth = motifCols;
+        gridHeight = motifRows;
     }
+
     else
     {
-        std::cerr << "Erreur : le redimensionnement de la grille est requis pour cette opération." << std::endl;
+        for (int x = 0; x < gridWidth; ++x)
+        {
+            for (int y = 0; y < gridHeight; ++y)
+            {
+                grid[x][y] = Cell(false, false, x, y);
+            }
+        }
+        int startX = (gridWidth - motifCols) / 2;
+        int startY = (gridHeight - motifRows) / 2;
+        for (int y = 0; y < motifRows; ++y)
+        {
+            for (int x = 0; x < motifCols; ++x)
+            {
+                int state;
+                state = newGrid[x][y].getState();
+                if (startX + x >= 0 && startX + x < gridWidth && startY + y >= 0 && startY + y < gridHeight)
+                {
+                    grid[startX + x][startY + y] = Cell(state == 1, false, startX + x, startY + y);
+                }
+            }
+        }
+        file.close();
+        std::cout << "Fichier chargé depuis : " << filepath << " et placé au centre de la grille." << std::endl;
     }
 
     file.close();
-    std::cout << "Fichier chargé depuis : " << filename << ". Grille redimensionnée : "
-              << (resizeGrid ? "Oui" : "Non") << std::endl;
 }
-
-
-
-
 
 Cell &Grid::getCell(int x, int y)
 {
@@ -183,13 +174,11 @@ Cell &Grid::getCell(int x, int y)
 void Grid::Export(const std::string &filename)
 {
     // Créer le chemin complet du fichier
-    std::string filepath = "exports/" + filename;
-    std::ofstream file(filepath);
+    std::ofstream file(filename);
 
     // Vérifier si le fichier est ouvert
     if (!file.is_open())
     {
-        std::cerr << "Erreur : impossible de créer ou d'ouvrir le fichier " << filepath << std::endl;
         return;
     }
 
@@ -201,12 +190,11 @@ void Grid::Export(const std::string &filename)
     {
         for (int x = 0; x < gridWidth; ++x)
         {
-            file << (grid[x][y].getState() ? "1" : "0") << " ";
+            file << (grid[y][x].getState() ? "1" : "0") << " ";
         }
         file << "\n"; // Fin de ligne pour chaque rangée
     }
 
     // Fermer le fichier
     file.close();
-    std::cout << "État exporté vers le fichier : " << filepath << std::endl;
 }

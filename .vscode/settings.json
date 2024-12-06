@@ -1,17 +1,9 @@
 {
     "files.associations": {
-<<<<<<< HEAD
         "array": "cpp",
         "atomic": "cpp",
         "bit": "cpp",
         "*.tcc": "cpp",
-=======
-        "*.tcc": "cpp",
-        "ostream": "cpp",
-        "array": "cpp",
-        "atomic": "cpp",
-        "bit": "cpp",
->>>>>>> cb03c97 (la gui enfin)
         "cctype": "cpp",
         "clocale": "cpp",
         "cmath": "cpp",
@@ -51,7 +43,6 @@
         "limits": "cpp",
         "new": "cpp",
         "numbers": "cpp",
-<<<<<<< HEAD
         "ostream": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
@@ -60,10 +51,4 @@
         "sstream": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
-=======
-        "stdexcept": "cpp",
-        "streambuf": "cpp",
-        "typeinfo": "cpp"
-    }
->>>>>>> cb03c97 (la gui enfin)
 }
