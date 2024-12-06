@@ -18,6 +18,28 @@ Game::~Game()
 
 void Game::Start()
 {
+    struct stat info;
+    if (stat("data", &info) != 0 || !(info.st_mode & S_IFDIR))
+    {
+        if (mkdir("data", 0777) == -1)
+        {
+            perror("Erreur lors de la création du dossier 'data'");
+            return;
+        }
+        cout << "Dossier 'data/' créé." << endl;
+    }
+
+    // Vérifie si "exports/" existe, sinon le crée
+    if (stat("exports", &info) != 0 || !(info.st_mode & S_IFDIR))
+    {
+        if (mkdir("exports", 0777) == -1)
+        {
+            perror("Erreur lors de la création du dossier 'exports'");
+            return;
+        }
+        cout << "Dossier 'exports/' créé." << endl;
+    }
+
     int choix;
 
     cout << "Faites un choix (1 pour mode graphique, 2 pour mode console): ";
