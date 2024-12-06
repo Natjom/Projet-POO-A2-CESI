@@ -60,6 +60,11 @@ int Grid::getCellNeighbor(int x, int y)
 
 void Grid::rule(int x, int y)
 {
+    if (grid[x][y].getObstacle())
+    {
+        return;
+    }
+
     int neighborCount = getCellNeighbor(x, y);
     if (grid[x][y].getState())
     {

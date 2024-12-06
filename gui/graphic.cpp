@@ -101,7 +101,8 @@ void Graphic::start()
                 window.close();
             }
 
-            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
+            if (event.type == sf::Event::MouseButtonPressed &&
+                (event.mouseButton.button == sf::Mouse::Left || event.mouseButton.button == sf::Mouse::Right))
             {
                 sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
                 handleMouseClick(mousePosition); // Appelle la gestion du clic de souris
@@ -118,13 +119,27 @@ void Graphic::start()
                 sf::RectangleShape cell(sf::Vector2f(cellSize - 1.0f, cellSize - 1.0f));
 
                 // Définir la couleur de la cellule en fonction de son état
-                if (grid.getCell(x, y).getState())
+                if (grid.getCell(x, y).getObstacle())
                 {
-                    cell.setFillColor(sf::Color::White); // Cellule vivante
+                    if (grid.getCell(x, y).getState())
+                    {
+                        cell.setFillColor(sf::Color::Red); // Cellule vivante
+                    }
+                    else
+                    {
+                        cell.setFillColor(sf::Color::Blue); // Cellule morte
+                    }
                 }
                 else
                 {
-                    cell.setFillColor(sf::Color::Black); // Cellule morte
+                    if (grid.getCell(x, y).getState())
+                    {
+                        cell.setFillColor(sf::Color::White); // Cellule vivante
+                    }
+                    else
+                    {
+                        cell.setFillColor(sf::Color::Black); // Cellule morte
+                    }
                 }
 
                 // Positionner la cellule sur la grille
@@ -259,8 +274,20 @@ void Graphic::handleMouseClick(sf::Vector2i mousePosition)
         int cellY = mousePosition.y / cellSize;
         if (cellX >= 0 && cellX < gridWidth && cellY >= 0 && cellY < gridHeight)
         {
-            grid.getCell(cellX, cellY).setState(!grid.getCell(cellX, cellY).getState(), true);
-             if (devInfo) cout << "Cellule (" << cellX << ", " << cellY << ") inversée." << endl;
+            // Si le clic est à gauche, inverser l'état de la cellule
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+            {
+                grid.getCell(cellX, cellY).setState(!grid.getCell(cellX, cellY).getState(), true);
+                if (devInfo)
+                    cout << "Cellule (" << cellX << ", " << cellY << ") inversée (clic gauche)." << endl;
+            }
+            // Si le clic est à droite, définir la cellule comme un obstacle
+            else if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+            {
+                grid.getCell(cellX, cellY).setObstacle(!grid.getCell(cellX, cellY).getObstacle()); // Met la cellule comme un obstacle
+                if (devInfo)
+                    cout << "Cellule (" << cellX << ", " << cellY << ") obstacle créé (clic droit)." << endl;
+            }
         }
     }
 
@@ -275,33 +302,38 @@ void Graphic::handleMouseClick(sf::Vector2i mousePosition)
     {
         pause = !pause;
         sf::sleep(sf::milliseconds(100));
-         if (devInfo) cout << "Bouton Pause/Play cliqué !" << endl;
+        if (devInfo)
+            cout << "Bouton Pause/Play cliqué !" << endl;
     }
     if (mousePosition.x >= startX + (buttonWidth + margin) && mousePosition.x <= startX + (buttonWidth + margin) + buttonWidth &&
         mousePosition.y >= startY && mousePosition.y <= startY + buttonHeight)
     {
         grid.initializeGrid();
-         if (devInfo) cout << "Bouton Réinitialiser cliqué !" << endl;
+        if (devInfo)
+            cout << "Bouton Réinitialiser cliqué !" << endl;
     }
     if (mousePosition.x >= startX + 2 * (buttonWidth + margin) && mousePosition.x <= startX + 2 * (buttonWidth + margin) + buttonWidth &&
         mousePosition.y >= startY && mousePosition.y <= startY + buttonHeight)
     {
         window.close();
-         if (devInfo) cout << "Bouton Quitter cliqué !" << endl;
+        if (devInfo)
+            cout << "Bouton Quitter cliqué !" << endl;
     }
     if (mousePosition.x >= startX + 3 * (buttonWidth + margin) && mousePosition.x <= startX + 3 * (buttonWidth + margin) + buttonWidth &&
         mousePosition.y >= startY && mousePosition.y <= startY + buttonHeight)
     {
         speed = std::min(speed * 10, 2000);
         sf::sleep(sf::milliseconds(100));
-         if (devInfo) cout << "Vitesse +, nouvelle vitesse: " << speed << "ms" << endl;
+        if (devInfo)
+            cout << "Vitesse +, nouvelle vitesse: " << speed << "ms" << endl;
     }
     if (mousePosition.x >= startX + 4 * (buttonWidth + margin) && mousePosition.x <= startX + 4 * (buttonWidth + margin) + buttonWidth &&
         mousePosition.y >= startY && mousePosition.y <= startY + buttonHeight)
     {
         speed = std::max(speed / 10, 1);
         sf::sleep(sf::milliseconds(100));
-         if (devInfo) cout << "Vitesse -, nouvelle vitesse: " << speed << "ms" << endl;
+        if (devInfo)
+            cout << "Vitesse -, nouvelle vitesse: " << speed << "ms" << endl;
     }
 
     if (mousePosition.x >= startX + 5 * (buttonWidth + margin) && mousePosition.x <= startX + 5 * (buttonWidth + margin) + buttonWidth &&
