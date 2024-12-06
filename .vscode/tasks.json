@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build SFML App",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-std=c++17",
+                "-I/usr/include",                 // Chemin d'inclusion SFML
+                "-L/usr/lib",                     // Chemin des bibliothèques SFML
+                "-lsfml-graphics",
+                "-lsfml-window",
+                "-lsfml-system",
+                "-o",
+                "main",
+                "main.cpp"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
