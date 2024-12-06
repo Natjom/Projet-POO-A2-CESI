@@ -7,33 +7,29 @@
 
 using namespace std;
 
-Grid::Grid()
+Grid::Grid() : gridWidth(0), gridHeight(0), grid(0, vector<Cell>(0))
 {
-    grid = vector<vector<Cell>>(0, vector<Cell>(0));
 }
 
 Grid::Grid(int gridWidth, int gridHeight)
+    : gridWidth(gridWidth), gridHeight(gridHeight), grid(gridWidth, vector<Cell>(gridHeight))
 {
-    this->gridWidth = gridWidth;
-    this->gridHeight = gridHeight;
-    grid = vector<vector<Cell>>(gridWidth, vector<Cell>(gridHeight));
 }
 
 void Grid::initializeGrid()
 {
-    srand(time(0));
+    srand(static_cast<unsigned int>(time(0)));  // Utilisation du bon type pour srand
     for (int x = 0; x < gridWidth; ++x)
     {
         for (int y = 0; y < gridHeight; ++y)
         {
-            bool isAlive = false;
-            isAlive = (rand() % 2 != 1);
+            bool isAlive = rand() % 2;  // Le binaire est plus simple ici
             grid[x][y] = Cell(isAlive, false, x, y);
         }
     }
 }
 
-int Grid::getCellNeighbor(int x, int y)
+int Grid::getCellNeighbor(int x, int y) const
 {
     int count = 0;
 
@@ -45,6 +41,7 @@ int Grid::getCellNeighbor(int x, int y)
             {
                 continue;
             }
+
             int nx = (x + dx + gridWidth) % gridWidth;
             int ny = (y + dy + gridHeight) % gridHeight;
 
@@ -83,10 +80,6 @@ void Grid::rule(int x, int y)
         {
             grid[x][y].setState(true, false);
         }
-        else
-        {
-            grid[x][y].setState(false, false);
-        }
     }
 }
 
@@ -101,27 +94,27 @@ void Grid::update()
     }
 }
 
-void Grid::loadGridFromFile(const std::string &filename, bool resizeGrid)
+void Grid::loadGridFromFile(const string &filename, bool resizeGrid)
 {
-    std::string filepath = "./data/" + filename;
-    std::ifstream file(filepath);
+    string filepath = "./data/" + filename;
+    ifstream file(filepath);
 
     if (!file.is_open())
     {
-        std::cout << "file not openable" << std::endl;
+        cerr << "File cannot be opened: " << filepath << endl;
         return;
     }
 
     int motifRows, motifCols;
     file >> motifRows >> motifCols;
-    file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    file.ignore(numeric_limits<streamsize>::max(), '\n');
 
     vector<vector<Cell>> newGrid(motifRows, vector<Cell>(motifCols));
-    std::string line;
+    string line;
     int y = 0;
     while (getline(file, line) && y < motifRows)
     {
-        std::istringstream lineStream(line);
+        istringstream lineStream(line);
         int state, x = 0;
 
         while (lineStream >> state && x < motifCols)
@@ -134,13 +127,10 @@ void Grid::loadGridFromFile(const std::string &filename, bool resizeGrid)
 
     if (resizeGrid)
     {
-
-        // Met à jour la grille
         grid.swap(newGrid);
         gridWidth = motifCols;
         gridHeight = motifRows;
     }
-
     else
     {
         for (int x = 0; x < gridWidth; ++x)
@@ -150,25 +140,24 @@ void Grid::loadGridFromFile(const std::string &filename, bool resizeGrid)
                 grid[x][y] = Cell(false, false, x, y);
             }
         }
+
         int startX = (gridWidth - motifCols) / 2;
         int startY = (gridHeight - motifRows) / 2;
         for (int y = 0; y < motifRows; ++y)
         {
             for (int x = 0; x < motifCols; ++x)
             {
-                int state;
-                state = newGrid[x][y].getState();
+                int state = newGrid[x][y].getState();
                 if (startX + x >= 0 && startX + x < gridWidth && startY + y >= 0 && startY + y < gridHeight)
                 {
                     grid[startX + x][startY + y] = Cell(state == 1, false, startX + x, startY + y);
                 }
             }
         }
-        file.close();
-        std::cout << "Fichier chargé depuis : " << filepath << " et placé au centre de la grille." << std::endl;
     }
 
     file.close();
+    cout << "File loaded from: " << filepath << endl;
 }
 
 Cell &Grid::getCell(int x, int y)
@@ -176,30 +165,26 @@ Cell &Grid::getCell(int x, int y)
     return grid[x][y];
 }
 
-void Grid::Export(const std::string &filename)
+void Grid::Export(const string &filename) const
 {
-    // Créer le chemin complet du fichier
-    std::ofstream file(filename);
+    ofstream file(filename);
 
-    // Vérifier si le fichier est ouvert
     if (!file.is_open())
     {
+        cerr << "File cannot be created: " << filename << endl;
         return;
     }
 
-    // Écrire les dimensions de la grille
     file << gridHeight << " " << gridWidth << "\n";
 
-    // Parcourir les cellules et écrire leur état dans le fichier
     for (int y = 0; y < gridHeight; ++y)
     {
         for (int x = 0; x < gridWidth; ++x)
         {
             file << (grid[y][x].getState() ? "1" : "0") << " ";
         }
-        file << "\n"; // Fin de ligne pour chaque rangée
+        file << "\n";
     }
 
-    // Fermer le fichier
     file.close();
 }
