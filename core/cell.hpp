@@ -6,13 +6,12 @@ class Cell
 private:
     bool isAlive;
     bool nextState;
-    bool isObstacle;
     int x;
     int y;
 
 public:
     Cell();
-    Cell(bool isAlive, bool isObstacle, int x, int y);
+    Cell(bool isAlive, int x, int y);
     ~Cell();
     int getX();
     int getY();
