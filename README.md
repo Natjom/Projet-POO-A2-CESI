@@ -1,4 +1,4 @@
-**Projet POO A2 CESI – Jeu de la Vie**
+# **Projet POO A2 CESI – Jeu de la Vie**
 
 Ce projet académique, réalisé en binôme dans le cadre du cursus CESI, consiste à implémenter en C++ une version fonctionnelle du **Jeu de la Vie** de John Conway. Ce célèbre automate cellulaire met en scène des cellules évoluant sur une grille selon des règles simples, produisant des motifs complexes à partir de conditions initiales.
 
