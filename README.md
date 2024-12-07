@@ -1,92 +1,67 @@
-# Projet-POO-A2-CESI 🧩
+**Projet POO A2 CESI – Jeu de la Vie**
 
-Un projet académique en C++ développé dans le cadre du cursus **CESI**.  
-Le projet consiste à implémenter une version fonctionnelle du **Jeu de la Vie** en suivant les principes de la programmation orientée objet.
+Ce projet académique, réalisé en binôme dans le cadre du cursus CESI, consiste à implémenter en C++ une version fonctionnelle du **Jeu de la Vie** de John Conway. Ce célèbre automate cellulaire met en scène des cellules évoluant sur une grille selon des règles simples, produisant des motifs complexes à partir de conditions initiales.
 
----
+### Objectifs du projet  
+- Appliquer les principes de la **programmation orientée objet (POO)**.  
+- Développer une architecture modulaire en C++.  
+- Travailler en collaboration grâce à des outils de gestion de versions comme Git.
 
-## Table des Matières
+### Guide d'installation  
 
-1. [Description](#description)  
-2. [Installation](#installation)  
-3. [Usage](#usage)  
-4. [Contribution](#contribution)  
-5. [Licence](#licence)
-
----
-
-## Description
-
-Le **Jeu de la Vie** est un automate cellulaire développé par John Conway. C'est un système où des cellules sur une grille évoluent en fonction de règles simples, produisant des motifs complexes à partir d'initialisations simples.  
-Ce projet a été réalisé en binôme pour appliquer les concepts de POO, le développement modulaire, et la gestion collaborative de projets.
-
----
-
-## Installation
-
-Pour installer et exécuter ce projet, suivez ces étapes :
-
-1. Clonez le dépôt :
+1. **Cloner le dépôt GitHub**  
+   Pour commencer, récupérez le code source :  
    ```bash
    git clone https://github.com/Natjom/Projet-POO-A2-CESI.git
    ```
 
-2. Accédez au répertoire source du projet :
+2. **Accéder au répertoire source**  
+   Déplacez-vous dans le dossier contenant les fichiers nécessaires à la compilation :  
    ```bash
    cd Projet-POO-A2-CESI/src
    ```
 
-3. Compilez le projet à l'aide du Makefile :
+3. **Compiler le projet**  
+   Utilisez le fichier Makefile inclus pour construire le programme :  
    ```bash
    make
    ```
 
-4. Exécutez le programme :
+4. **Lancer le programme**  
+   Une fois la compilation réussie, exécutez le fichier généré :  
    ```bash
    ./main
    ```
 
----
+### Utilisation du programme  
 
-## Usage
+Le programme vous permettra d'explorer les différentes fonctionnalités du **Jeu de la Vie** :  
+- **Démarrer une simulation** avec des paramètres par défaut ou une configuration personnalisée.  
+- **Modifier les options** comme la taille de la grille ou l'état initial des cellules.  
+- **Observer les évolutions** des cellules en fonction des règles du jeu.  
 
-Après avoir compilé et exécuté le programme, le Jeu de la Vie sera initialisé avec une grille par défaut ou une configuration choisie.  
-Suivez les instructions affichées pour :  
+### Participer au projet  
 
-- **Démarrer** une simulation.  
-- **Modifier** les paramètres (taille de la grille, configuration initiale, etc.).  
-- **Observer** l'évolution des cellules selon les règles prédéfinies.  
-
----
-
-## Contribution
-
-Les contributions sont les bienvenues ! Voici comment contribuer :  
-
-1. Forkez ce dépôt.  
-2. Créez une branche pour vos modifications :  
+Nous encourageons toutes les contributions pour enrichir ce projet. Voici comment participer :  
+1. **Forkez le dépôt sur GitHub** pour créer une copie sur votre compte.  
+2. **Créez une branche dédiée** à vos modifications :  
    ```bash
    git checkout -b feature/nom-de-votre-fonctionnalite
    ```  
-3. Effectuez vos modifications et ajoutez-les au dépôt :  
+3. **Apportez vos modifications** et validez-les avec un commit :  
    ```bash
    git add .  
-   git commit -m "Ajout de fonctionnalité : nom"  
+   git commit -m "Ajout de : description rapide de la fonctionnalité"  
    ```  
-4. Poussez vos modifications :  
+4. **Poussez votre branche sur votre dépôt GitHub** :  
    ```bash
    git push origin feature/nom-de-votre-fonctionnalite
    ```  
-5. Soumettez une Pull Request.  
+5. **Soumettez une Pull Request** pour proposer vos changements au dépôt principal.
 
----
+### Licence  
 
-## Licence
+Ce projet est distribué sous la licence **MIT**, ce qui vous permet de l'utiliser librement, de le modifier et de le redistribuer. Pour plus de détails, consultez le fichier `LICENSE` du dépôt.
 
-Ce projet est sous licence **MIT**.  
-Consultez le fichier [LICENSE](LICENSE) pour plus d'informations.  
-
----
-
-**Lien vers le projet GitHub :**  
+**Lien du projet GitHub :**  
 [https://github.com/Natjom/Projet-POO-A2-CESI](https://github.com/Natjom/Projet-POO-A2-CESI)
