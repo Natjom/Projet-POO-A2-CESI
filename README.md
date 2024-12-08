@@ -21,13 +21,19 @@ Ce projet académique, réalisé en binôme dans le cadre du cursus CESI, consis
    cd Projet-POO-A2-CESI/src
    ```
 
-3. **Compiler le projet**  
+3.  **Installation dépendances**
+    Afin de compiler le programme et lancer l'interface graphique, il faut au préalable installer le package SFML :
+    ```bash
+    sudo apt-get install libsfml-dev
+    ```
+
+5. **Compiler le projet**  
    Utilisez le fichier Makefile inclus pour construire le programme :  
    ```bash
    make
    ```
 
-4. **Lancer le programme**  
+6. **Lancer le programme**  
    Une fois la compilation réussie, exécutez le fichier généré :  
    ```bash
    ./main
